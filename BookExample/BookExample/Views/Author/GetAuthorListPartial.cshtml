@@ -1,0 +1,6 @@
+﻿@model IEnumerable<SelectListItem>
+
+<div class="form-group authors-cover">
+    @Html.DropDownList("SelectedAuthors["+ (int)ViewBag.Number +"]", Model, new {@class = "authors-list col-lg-2"})
+    <a class="col-lg-4 delete-author-list" href="#">Delete</a>
+</div>

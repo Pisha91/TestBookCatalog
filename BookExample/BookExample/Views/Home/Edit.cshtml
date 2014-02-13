@@ -1,0 +1,104 @@
+﻿@model BookExample.ViewModel.BookViewModel
+
+@{
+    ViewBag.Title = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Edit</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>BookViewModel</h4>
+        <hr />
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Isnb, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Isnb)
+                @Html.ValidationMessageFor(model => model.Isnb)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Title, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Title)
+                @Html.ValidationMessageFor(model => model.Title)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ReleseYear, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.ReleseYear, Model.AvailableReleseYears)
+                @Html.ValidationMessageFor(model => model.ReleseYear)
+            </div>
+        </div>
+        
+        <div class="form-group">
+            @Html.LabelFor(model => model.ReleseYear, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <a id="add-author" href="#">Add Author</a>
+                <div>
+                    <div id="authors">
+                        @{ int i = 0;}
+                        @foreach (var author in Model.Authors)
+                        {
+                            if (i == 0)
+                            {
+                                <div class="form-group authors-cover">
+                                    @Html.DropDownList("SelectedAuthors[" + i + "]", Model.Authors.Select(x => new SelectListItem { Text = x.FullName, Value = x.Id.ToString(), Selected = x.Id == author.Id }), new { @class = "authors-list col-lg-2" })
+                                </div>
+                            }
+                            else
+                            {
+                                Html.RenderAction("GetAuthorList", "Author", new { number = i, id = author.Id });
+                            }
+                            i++;
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+@section scripts
+{
+    <script type="text/javascript">
+        $(function () {
+            $('#add-author').on('click', function (e) {
+                e.preventDefault();
+                var number = $('.authors-list').length;
+                var authorCover = $('#authors');
+                $.get('@Url.Action("GetAuthorList", "Author")?number=' + number, function (html) {
+                    authorCover.append(html);
+                });
+            });
+        });
+
+        $(document).on('click', '.delete-author-list', function () {
+            $(this).parents('.authors-cover').remove();
+            var i = 0;
+            $('.authors-list').each(function () {
+                $(this).attr('name', 'SelectedAuthors[' + i + ']');
+                i++;
+            });
+        });
+    </script>
+}
